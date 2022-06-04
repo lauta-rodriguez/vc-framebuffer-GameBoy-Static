@@ -57,6 +57,6 @@ main:
 	bl drawCartridge
     bl drawBase
 	bl drawScreen
-//	bl drawButtons
+	bl drawButtons
 
 infloop: b infloop

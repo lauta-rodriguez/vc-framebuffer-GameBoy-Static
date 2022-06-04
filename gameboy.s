@@ -3,7 +3,7 @@
 
 .include "utils.s"
 
-drawBase: // done
+drawBase:
     //------------------
     sub sp, sp, 104     // reserve memory in the stack 
     stur x1, [sp,96]    // display frame x coordinate
@@ -22,8 +22,8 @@ drawBase: // done
     //------------------
 
     // Base color
-	movz x10, 0xB8, lsl 16
-	movk x10, 0xBAB9, lsl 0
+	  movz x10, 0xB8, lsl 16
+	  movk x10, 0xBAB9, lsl 0
 
     // Initialize registers
     mov x5, xzr
@@ -51,19 +51,19 @@ drawBase: // done
     add x4, x4, x6      // base height is 10 times the margin
 
     add x8, x8, 25      // determines how pronounces is the corner's curve
-    bl paintRoundedRectangle    // pintar rectangulo base de la gameboy
+    bl paintRoundedRectangle    // paint gameboy case
 
     // draw the shadow with respect to x5 and x6
     // dividirlos por 3
 
     // "Shadow" color
-	movz x10, 0x9A, lsl 16
-	movk x10, 0x9A9A, lsl 0
+	  movz x10, 0x9A, lsl 16
+	  movk x10, 0x9A9A, lsl 0
 
     udiv x12, x5, x11   // divides horizontal margin by 3
     add x1, x1, x12     // moves that amount of pixels right
     mov x3, x11
-  //  sub x3, x3, 1
+    //sub x3, x3, 1
     bl paintRectangle
 
     //------------------ 
@@ -100,19 +100,19 @@ drawScreen: // done
     stur lr, [sp,0]
     //------------------
 
-  // BORDER
+    // BORDER
     // Border color
-	movz x10, 0x5E, lsl 16
-	movk x10, 0x6768, lsl 0
+	  movz x10, 0x5E, lsl 16
+	  movk x10, 0x6768, lsl 0
 
     mov x8, xzr
     add x8, x8, 11      // determines how pronounced is the corner's curve
     bl paintRoundedRectangle
 
-  // DISPLAY
+    // DISPLAY
     // Display color
-	movz x10, 0x90, lsl 16
-	movk x10, 0x9A3E, lsl 0
+    movz x10, 0x90, lsl 16
+    movk x10, 0x9A3E, lsl 0
 
     ldur x1, [sp,80]    // x coordinate
     ldur x2, [sp,72]    // y coordinate
@@ -144,9 +144,9 @@ drawScreen: // done
 
     bl paintRectangle   // paints display
 
-  // LIGHT
+    // LIGHT
     // Light color
-	movz x10, 0xAD, lsl 16
+	  movz x10, 0xAD, lsl 16
     movk x10, 0x0952, lsl 0
     
     // restores:
@@ -246,8 +246,8 @@ drawButtons: // incomplete
     //------------------
     sub sp, sp, 64      // reserve memory in the stack
     stur x10,[sp,56]    // contains gameboy base color
-    stur x14, [sp,48]   // arrows height
-    stur x13, [sp,40]   // arrows width
+    stur x14,[sp,48]   // arrows height
+    stur x13,[sp,40]   // arrows width
     stur x1, [sp,32]    // x coordinate
     stur x2, [sp,24]    // y coordinate
     stur x3, [sp,16]    // gameboy base width
@@ -265,8 +265,8 @@ drawButtons: // incomplete
     mov x3, xzr
     mov x4, xzr
 
-    add x3, x3, 50
-    add x4, x4, 15
+    add x3, x3, 60
+    add x4, x4, 20
 
     movz x10, 0x39, lsl 16
   	movk x10, 0x3139, lsl 0
@@ -291,16 +291,19 @@ drawButtons: // incomplete
     add x2, x2, 30
     add x1, x1, 70      // moves 50 pixels right
 
+    movz x10, 0xAB, lsl 16
+    movk x10, 0x3268, lsl 0
+
     mov x3, xzr
-    add x3, x3, 5
- //   mov x4, x1
- //   mov x5, x2
+    add x3, x3, 18
+    mov x4, x1
+    add x4, x4, 10
+    mov x5, x2
+    sub x5, x5, 24
+    bl paintCircle
 
-  //  movz x10, 0xAB, lsl 16
-  //	movk x10, 0x3268, lsl 0
-
-	movz x10, 0xF4, lsl 16
-	movk x10, 0x0A5E, lsl 0
+    add x4, x4, 32
+    sub x5, x5, 32
     bl paintCircle
 
     //------------------
