@@ -1,3 +1,8 @@
+// Grupo:
+// Nieto, Manuel
+// Kurtz, Lara
+// Rodriguez, Lautaro
+
 .include "gameboy.s"
 
 .globl main
