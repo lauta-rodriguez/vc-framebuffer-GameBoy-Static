@@ -64,7 +64,7 @@ drawBase:
     add x1, x1, x12     // moves that amount of pixels right
     mov x3, x11
     //sub x3, x3, 1
-    bl paintRectangle
+  //  bl paintRectangle
 
     //------------------ 
     ldur x1, [sp,96]    // x coordinate
@@ -246,31 +246,31 @@ drawButtons: // incomplete
     //------------------
     sub sp, sp, 64      // reserve memory in the stack
     stur x10,[sp,56]    // contains gameboy base color
-    stur x14,[sp,48]   // arrows height
-    stur x13,[sp,40]   // arrows width
-    stur x1, [sp,32]    // x coordinate
-    stur x2, [sp,24]    // y coordinate
-    stur x3, [sp,16]    // gameboy base width
-    stur x4, [sp,8]     // gameboy base height
+    stur x14,[sp,48]    // arrows height
+    stur x13,[sp,40]    // arrows width
+    stur x1, [sp,32]    // display frame x coordinate
+    stur x2, [sp,24]    // display frame y coordinate
+    stur x3, [sp,16]    // display frame width
+    stur x4, [sp,8]     // display frame height
     stur lr, [sp]
     //------------------
 
+    mov x7, xzr
+
     // calculates the arrows position
-    lsr x5, x4, 1       // doubles the border height     
-    add x5, x5, x4
+    lsr x5, x4, 1       // divides the display frame height by two
+    add x5, x5, x4      // 3/2 de la altura del display frame
     add x2, x2, x5      // moves that amount of pixels down
     add x2, x2, 30
 
     // calculate arrow's size
-    mov x3, xzr
-    mov x4, xzr
-
-    add x3, x3, 60
-    add x4, x4, 20
+    lsr x3, x3, 1       // divides fisplay frame width by two 
+    add x7, x7, 5
+    udiv x4, x4, x7
 
     movz x10, 0x39, lsl 16
   	movk x10, 0x3139, lsl 0
-    bl paintRectangle
+    bl paintRectangle   // pinta el rectángulo acostado
 
     // center the coordinates with respect to the rectangle just drawn
     mov x5, x3          // saves the rectangles width
@@ -279,33 +279,33 @@ drawButtons: // incomplete
     add x1, x1, x5      // moves that amount of pixels right
     sub x2, x2, x5      // moves that amount of pixels up
 
-    // swap dimensions
+    // swap dimensions -> el ancho pasa a ser el alto y viceversa
     mov x6, x3          
     mov x3, x4          // arrows width
     mov x4, x6          // arrows height
   
     bl paintRectangle   // cambiar por elipses
 
-    lsl x5, x5, 1
-    add x2, x2, x5      // moves down to the bottom of the arrows
-    add x2, x2, 30
-    add x1, x1, 70      // moves 50 pixels right
-
     // red buttons
+ //   lsl x5, x5, 1
+  //  add x2, x2, x5      // moves down to the bottom of the arrows
+  //  add x2, x2, 30
+  //  add x1, x1, 70      // moves 50 pixels right
+
     movz x10, 0xAB, lsl 16
     movk x10, 0x3268, lsl 0
 
     mov x3, xzr
     add x3, x3, 18
     mov x4, x1
-    add x4, x4, 10
+  //  add x4, x4, 10
     mov x5, x2
-    sub x5, x5, 24
-    bl paintCircle
+  //  sub x5, x5, 24
+  //  bl paintCircle
 
     add x4, x4, 32
     sub x5, x5, 32
-    bl paintCircle
+ //   bl paintCircle
     // red buttons
 
     //------------------
