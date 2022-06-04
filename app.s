@@ -25,14 +25,14 @@ main:
 	// a (640,480)
 
     //Inicializo los registros
-    mov x1, xzr		// screen x coordinate
-    mov x2, xzr		// screen y coordinate
+    mov x1, xzr		// gameboy display x coordinate
+    mov x2, xzr		// gameboy display y coordinate
  	mov x3, xzr		// 
     mov x4, xzr		// 
 	mov x13, xzr	// temp
 	mov x14, xzr	// temp
 
-	// Parámetros del display border
+	// Parámetros del frame del display del gameboy ("del" combo x3) 
 	add x3, x3, 140		// width
 	add x4, x4, 100		// height
     add x13, x13, SCREEN_WIDTH // framebuffer width

@@ -359,7 +359,7 @@ paintRoundedRectangle:
     mov x6, xzr
     mov x9, xzr
 
-  // RECTANGLE SIZE
+    // RECTANGLE SIZE
     //calculates corner's side
     udiv x8, x4, x8     
     add x8, x8, x9      // radius of the circle that shapes the corner
@@ -385,7 +385,7 @@ paintRoundedRectangle:
 
     bl paintRectangle   // paints vertical rectangle
 
-  // CORNERS
+    // CORNERS
     mov x3, x8          // x3 now contains the radius
     mov x4, x6          // x4 contains the x coordinate for the center point of the circle
     bl paintCircle      // paints top-left corner

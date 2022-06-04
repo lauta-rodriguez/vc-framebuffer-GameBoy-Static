@@ -102,8 +102,8 @@ drawScreen: // done
 
     // BORDER
     // Border color
-	  movz x10, 0x5E, lsl 16
-	  movk x10, 0x6768, lsl 0
+    movz x10, 0x5E, lsl 16
+    movk x10, 0x6768, lsl 0
 
     mov x8, xzr
     add x8, x8, 11      // determines how pronounced is the corner's curve
@@ -141,14 +141,14 @@ drawScreen: // done
     // calculates display height
     add x6, x6, x6       // doubles that distance
     sub x4, x4, x6      // substracts it from border height
-
+    
     bl paintRectangle   // paints display
 
     // LIGHT
     // Light color
-	  movz x10, 0xAD, lsl 16
+	movz x10, 0xAD, lsl 16
     movk x10, 0x0952, lsl 0
-    
+     
     // restores:
     ldur x1, [sp,80]    // x coordinate
     ldur x2, [sp,72]    // y coordinate
@@ -166,7 +166,7 @@ drawScreen: // done
     sub x4, x4, x3      // substracts light's size from border height
     lsr x4, x4, 1       // divides the by two
     add x2, x2, x4      // moves that amount of pixels down
-    
+
     mov x4, x1          // paintCircle expects x coordinate at x4
     mov x5, x2          // paintCircle expects y coordinate at x5
 
@@ -291,6 +291,7 @@ drawButtons: // incomplete
     add x2, x2, 30
     add x1, x1, 70      // moves 50 pixels right
 
+    // red buttons
     movz x10, 0xAB, lsl 16
     movk x10, 0x3268, lsl 0
 
@@ -305,6 +306,7 @@ drawButtons: // incomplete
     add x4, x4, 32
     sub x5, x5, 32
     bl paintCircle
+    // red buttons
 
     //------------------
     ldur x10,[sp,56]

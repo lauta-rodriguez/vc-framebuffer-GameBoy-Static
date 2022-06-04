@@ -20,9 +20,10 @@ kernel8.img : memmap $(ASM_OBJS)
 run : all
 	qemu-system-aarch64 -M raspi3b -kernel kernel8.img -serial stdio
 
-remake: clean
+remake: 
+	make clean
 	make run
-
+	make clean
 runQEMU : kernel8.img
 	qemu-system-aarch64 -s -S -M raspi3b -kernel kernel8.img
 
