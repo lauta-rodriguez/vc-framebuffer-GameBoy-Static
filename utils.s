@@ -66,14 +66,14 @@ paintPixel:
     stur w10, [x9]
 
     //------------------
+
+    end:
     ldur x8, [sp,16]
     ldur x9, [sp,8]
     ldur lr, [sp,0]
     add sp, sp, 24
-
-    end:
-        ret
-        //------------------
+    ret
+    //------------------
 
 paintRectangle:
     //------------------
