@@ -32,6 +32,8 @@ main:
 	mov x13, xzr	// temp
 	mov x14, xzr	// temp
 
+// hola
+
 	// Parámetros del frame del display del gameboy ("del" combo x3) 
 	add x3, x3, 140		// width
 	add x4, x4, 100		// height
