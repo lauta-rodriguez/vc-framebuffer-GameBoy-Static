@@ -3,7 +3,7 @@
 
 .include "utils.s"
 
-drawBase:
+drawBase: // done
     //------------------
     sub sp, sp, 104     // reserve memory in the stack 
     stur x1, [sp,96]    // display frame x coordinate
@@ -244,7 +244,9 @@ drawCartridge: // done
 
 drawButtons: // incomplete
     //------------------
-    sub sp, sp, 64      // reserve memory in the stack
+    sub sp, sp, 80      // reserve memory in the stack
+    stur x7, [sp,72]    // temp
+    stur x6, [sp,64]    // temp
     stur x10,[sp,56]    // contains gameboy base color
     stur x14,[sp,48]    // arrows height
     stur x13,[sp,40]    // arrows width
@@ -255,6 +257,7 @@ drawButtons: // incomplete
     stur lr, [sp]
     //------------------
 
+    // ARROWS
     mov x7, xzr
 
     // calculates the arrows position
@@ -286,29 +289,36 @@ drawButtons: // incomplete
   
     bl paintRectangle   // cambiar por elipses
 
-    // red buttons
- //   lsl x5, x5, 1
-  //  add x2, x2, x5      // moves down to the bottom of the arrows
-  //  add x2, x2, 30
-  //  add x1, x1, 70      // moves 50 pixels right
-
+    // RED BUTTONS
     movz x10, 0xAB, lsl 16
     movk x10, 0x3268, lsl 0
 
-    mov x3, xzr
-    add x3, x3, 18
-    mov x4, x1
-  //  add x4, x4, 10
-    mov x5, x2
-  //  sub x5, x5, 24
-  //  bl paintCircle
+    // LARA: hace dinamicos x4 y x5, son el centro de los botones rojos
+    // el radio ya lo resolvi y esta en x3 mas abajo
+    // lsl x5, x5, 1
+    // add x2, x2, x5      // moves down to the bottom of the arrows
+    // add x2, x2, 30
+    // add x1, x1, 70      // moves 50 pixels right
 
-    add x4, x4, 32
-    sub x5, x5, 32
- //   bl paintCircle
-    // red buttons
+    // calculates the radius of the red buttons based on the width of the display frame
+    mov x7, 7
+    ldur x3, [sp,16]        // restores display frame width
+    udiv x3, x3, x7 
+    // the radius is stored in x3 
+
+    // mov x4, x1
+    // add x4, x4, 10
+    // mov x5, x2
+    // sub x5, x5, 24
+    // bl paintCircle
+
+    //add x4, x4, 32
+    //sub x5, x5, 32
+    // bl paintCircle
 
     //------------------
+    ldur x7, [sp,72]    // temp
+    ldur x6, [sp,64]    // temp
     ldur x10,[sp,56]
     ldur x14,[sp,48]
     ldur x13,[sp,40]
@@ -317,7 +327,7 @@ drawButtons: // incomplete
     ldur x3, [sp,16]
     ldur x4, [sp,8]
     ldur lr, [sp]
-    add sp, sp, 64
+    add sp, sp, 80
     br lr
     //------------------
 

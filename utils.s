@@ -41,19 +41,20 @@ paintPixel:
     // x -> x1 
     // y -> x2 
     // colour -> x10
-    ///////////////////////////////////////////
 
-    sub sp, sp, 24
-    stur x8, [sp,16]
-    stur x9, [sp,8]
+    sub sp, sp, 40
+    stur x8, [sp,32]
+    stur x9, [sp,24]
+    stur x2, [sp,16]
+    stur x1, [sp,8]
     stur lr, [sp,0]
     //------------------
 
-    // no se queja si es más chico
+    // checking that the coordinates belong to the framebuffer
     cmp x1, SCREEN_WIDTH
-    b.ge end
+    b.ge endPP
     cmp x2, SCREEN_HEIGH
-    b.ge end
+    b.ge endPP
 
     // calculate the initial address 
     // address = fb_base_address + 4 * [x + (y * 640)]
@@ -65,13 +66,14 @@ paintPixel:
 
     stur w10, [x9]
 
+    endPP:
     //------------------
-
-    end:
-    ldur x8, [sp,16]
-    ldur x9, [sp,8]
+    ldur x8, [sp,32]
+    ldur x9, [sp,24]
+    ldur x2, [sp,16]
+    ldur x1, [sp,8]
     ldur lr, [sp,0]
-    add sp, sp, 24
+    add sp, sp, 40
     ret
     //------------------
 
@@ -135,7 +137,7 @@ paintTriangle:
     // x1  --> x coordinate
     // x2  --> y coordinate
     // x5  --> triangle height
-    //------------
+    //
     // Otras variables:
     // x12 --> registro auxiliar para la heigth
     // x15 --> base en cada iteracion
@@ -206,18 +208,16 @@ paintTriangle:
     //------------------
 
 ifPixelInCirclePaintIT:
-    ///////////////////////////////////////////
-    //  This procedure checks if the point
-    //  (x1,x2) belongs to the circle and
-    //  paints it if it does
-    //  
-    //  parameters:
-    //  x10 → colour 
-    //  (x1,x2) → current pixel
-    //  (x4,x5) → center of the circle
-    //  x3 -> r
-    ///////////////////////////////////////////
-    
+    //------------------
+    // This procedure checks if the point
+    // (x1,x2) belongs to the circle and
+    // paints it if it does
+    // 
+    // parameters:
+    // x10 → colour 
+    // (x1,x2) → current pixel
+    // (x4,x5) → center of the circle
+    // x3 -> r
     // "(x1-x4)² + (x2-x5)² ≤ x3²" is true if  "(x1,x2) ∈ Circle"
 
     sub sp, sp, 72
@@ -230,6 +230,7 @@ ifPixelInCirclePaintIT:
     stur x2, [sp,16]
     stur x1, [sp,8]
     stur lr, [sp]
+    //------------------
 
     mul x15,x3,x3    //r²
 
@@ -247,7 +248,8 @@ ifPixelInCirclePaintIT:
     // paints the pixel (x1,x2)
     bl paintPixel
 
-    endPiC: 
+    endPiC:
+    //------------------
     ldur x15,[sp,64]
     ldur x14,[sp,56]
     ldur x13,[sp,48]
@@ -259,14 +261,13 @@ ifPixelInCirclePaintIT:
     ldur lr, [sp]
     add sp, sp, 72
     br lr
-
+    //------------------
 paintCircle:
-    ///////////////////////////////////////////
+    //------------------
     //  circle of radius r, centered in (x0,y0)
     //  x10 -> colour 
     //  x3 -> r
     //  (x4,x5) -> (x0,y0)
-    ///////////////////////////////////////////
 
     sub sp, sp, 88
     stur x10,[sp,80]    // colour 
@@ -280,6 +281,7 @@ paintCircle:
     stur x2, [sp,16]
     stur x1, [sp,8]
     stur lr, [sp]       // return pointer
+    //------------------
 
     // calculate the side length of the minimum square that contains the circle 
     add x6, x3, x3
@@ -320,6 +322,7 @@ paintCircle:
         b loopPC1
     
     endLoopPC1:
+    //------------------
     ldur x10,[sp,80]
     ldur x9, [sp,72]
     ldur x8, [sp,64]
@@ -333,6 +336,7 @@ paintCircle:
     ldur lr, [sp]
     add sp, sp, 88
     ret
+    //------------------
 
 paintRoundedRectangle:
     //------------------
@@ -417,5 +421,287 @@ paintRoundedRectangle:
     br lr
     //------------------
 
+taylor_sen:
+    //------------------
+    // calculates sen(x3) using taylor series center at 0 and n = 5
+    // x13 is aprox x3 - x3³/6 + x3⁵/120 - x3⁷/5040 + x3⁹/362880
+    sub sp, sp, 56
+    stur x23, [sp,48]
+    stur x22, [sp,40]
+    stur x21, [sp,32]
+    stur s3, [sp,24]
+    stur x2, [sp,16]
+    stur x1, [sp,8]
+    stur lr, [sp,0]
+    //------------------
+
+    fmov s13, s3         // x3 
+    fmul s1, s3, s3      // x3²
+    fmul s1, s1, s3      // x3³
+    fmov s21, 6          // s21←6 
+    fdiv s2, s1, s21     // x3³/6
+    fsub s13, s13, s2    // x3 - x3³/6
+    fmul s1, s1, s3      // x3⁴
+    fmul s1, s1, s3      // x3⁵
+    fmov s22, 20         // s22←20
+    fmul s21, s21, s22   // s21←120
+    fdiv s2, s1, s21     // x3⁵/120
+    fadd s13, s13, s2    // x3 - x3³/6 + x3⁵/120
+    fmul s1, s1, s3      // x3⁶
+    fmul s1, s1, s3      // x3⁷
+    fmov s23, 22         // s23←22
+    fadd s22, s22, s23   // s22←42 
+    fmul s21, s21, s22   // s21←5040
+    fdiv s2, s1, s21     // x3⁷/5040
+    fsub s13, s13, s2    // x3 - x3³/6 + x3⁵/120 - x3⁷/5040
+    fmul s1, s1, s3      // x3⁸
+    fmul s1, s1, s3      // x3⁹
+    fmov s23, 20         // s23←20
+    fadd s22, s22, s23   // s22←62
+    fmov s23, 10         // s23←10
+    fadd s22, s22, s23   // s22←72
+    fmul s21, s21, s22   // s21←362880
+    fdiv s2, s1, s21     // x3⁹/362880
+    fadd s13, s13, s2    // x3 - x3³/6 + x3⁵/120 - x3⁷/5040 + x3⁹/362880
+
+    //------------------
+    ldur x23, [sp,48]
+    ldur x22, [sp,40]
+    ldur x21, [sp,32]
+    ldur s3, [sp,24]
+    ldur x2, [sp,16]
+    ldur x1, [sp,8]
+    ldur lr, [sp,0]
+    add sp, sp, 56
+    //------------------
+    ret
+
+taylor_cos:
+    //------------------
+    // calculates cos(x3) using taylor series center at 0 and n = 5
+    // cos(x3) aprox = 1 - x3²/2 + x3⁴/24 - x3⁶/720 + x3⁸/40320
+    sub sp, sp, 56
+    stur x23, [sp,48]
+    stur x22, [sp,40]
+    stur x21, [sp,32]
+    stur x3, [sp,24]
+    stur x2, [sp,16]
+    stur x1, [sp,8]
+    stur lr, [sp,0]
+    //------------------
+
+    fmov s14, 1         // 1 
+    fmul s1, s3, s3     // x3²
+    fmov s21, 2         // s21←2
+    fdiv s2, s1, s21    // x3²/2
+    fsub s14, s14, s2   // 1 - x3²/2 
+    fmul s1, s1, s1     // x3⁴
+    fmov s22, 12        // s22←12
+    fmul s21, s21, s22  // s21←24   
+    fdiv s2, s1, s21    // x3⁴/24
+    fadd s14, s14, s2   // 1 - x3²/2 + x3⁴/24
+    fmul s1, s1, s3     // x3⁵
+    fmul s1, s1, s3     // x3⁶
+    fmov s23, 18        // s23←18
+    fadd s22, s22, s23  // s22←30
+    fmul s21, s21, s22  // s21←720
+    fdiv s2, s1, s21    // x3⁶/720
+    fsub s14, s14, s2   // 1 - x3²/2 + x3⁴/24 - x3⁶/720
+    fmul s1, s1, s3     // x3⁷
+    fmul s1, s1, s3     // x3⁸
+    fmov s23, 26        // s23←26
+    fadd s22, s22, s23  // s22←56
+    fmul s21, s21, s22  // s21←40320
+    fdiv s2, s1, s21    // x3⁸/40320
+    fadd s14, s14, s2   // 1 - x3²/2 + x3⁴/24 - x3⁶/720 + x3⁸/40320
+
+    //------------------
+    ldur x23, [sp,48]
+    ldur x22, [sp,40]
+    ldur x21, [sp,32]
+    ldur x3, [sp,24]
+    ldur x2, [sp,16]
+    ldur x1, [sp,8]
+    ldur lr, [sp,0]
+    add sp, sp, 56
+    ret
+    //------------------
+
+ifPixelInEllipsePaintIT:
+    //------------------
+    //  This procedure checks if the point
+    //  (x1,x2) belongs to the ellipse and
+    //  paints it if it does
+    //  
+    //  parameters:
+    //  x10 → colour 
+    //  (x1,x2) → current pixel
+    //  (x4,x5) → center of the elipse
+    //  x6 -> x axis
+    //  x7 -> y axis
+    //  x3 -> a rotation (range must be between [-pi, pi])
+    //
+    // "(x7·((x1-x4)·cos(x3)-(x2-x5)·sen(x3)))² + (x6·((x1-x4)·sen(x3)+(x2-x5)·cos(x3)))² ≤ (x6·x7)² is true if (x1,x2) belongs to the ellipse "
+
+    sub sp, sp, 80
+    stur x19,[sp,72]
+    stur x18,[sp,64]
+    stur x17,[sp,56]
+    stur x16,[sp,48]
+    stur x15,[sp,40]
+    stur x14,[sp,32]     //cos(x3)
+    stur x13,[sp,24]     //sen(x3)
+    stur x12,[sp,16]     //(x2-x5)
+    stur x11,[sp,8]      //(x1-x4)
+    stur lr, [sp]
+    //------------------
+
+    // covert int values to float 
+    scvtf s1, w1
+    scvtf s2, w2
+    scvtf s4, w4
+    scvtf s5, w5
+    scvtf s6, w6
+    scvtf s7, w7
+
+    // ellipse equation
+    fsub s11, s1, s4   // (x1-x4)
+    fsub s12, s2, s5   // (x2-x5)
+
+    fmul s15, s11, s14 // (x1-x4)·cos(x3)
+    fmul s16, s12, s13 // (x2-x5)·sen(x3)
+    fsub s17, s15, s16 // (x1-x4)·cos(x3)-(x2-x5)·sen(x3)
+    fmul s17, s17, s7  // x7·((x1-x4)·cos(x3)-(x2-x5)·sen(x3))
+    fmul s17, s17, s17 // (x7·((x1-x4)·cos(x3)-(x2-x5)·sen(x3)))²
+
+    fmul s15, s11, s13 // (x1-x4)·sen(x3)
+    fmul s16, s12, s14 // (x2-x5)·cos(x3)
+    fadd s18, s15, s16 // (x1-x4)·sen(x3)+(x2-x5)·cos(x3)
+    fmul s18, s18, s6  // x6·((x1-x4)·sen(x3)+(x2-x5)·cos(x3))
+    fmul s18, s18, s18 // (x6·((x1-x4)·sen(x3)+(x2-x5)·cos(x3)))² 
+
+    fadd s17, s17, s18 // (x7·((x1-x4)·cos(x3)-(x2-x5)·sen(x3)))² + (x6·((x1-x4)·sen(x3)+(x2-x5)·cos(x3)))²
+
+    fmul s19, s6, s7   // (x6·x7)
+    fmul s19, s19, s19 // (x6·x7)²
+
+    fcmp s17, s19
+
+    b.gt endPiE
+
+    // paints the pixel (x1,x2)
+    bl paintPixel
+
+    endPiE: 
+    //------------------
+    ldur x19,[sp,72]
+    ldur x18,[sp,64]
+    ldur x17,[sp,56]
+    ldur x16, [sp,48]
+    ldur x15, [sp,40]
+    ldur x14, [sp,32]   
+    ldur x13, [sp,24]     
+    ldur x12, [sp,16]     
+    ldur x11, [sp,8]      
+    ldur lr, [sp]
+    add sp, sp, 80
+    ret
+    //------------------
+
+paintEllipse:
+    //------------------
+    //  centered in (x0,y0), x axis, y axis, a rotation
+    //  x10 -> colour
+    //  x7 -> y axis 
+    //  x6 -> x axis
+    //  (x4,x5) -> (x0,y0)
+    //  x3 -> a rotation (range must be between [-pi, pi])
+
+    sub sp, sp, 120
+    stur x14,[sp,112]   // cos(a)
+    stur x13,[sp,104]   // sen(a)
+    stur x12,[sp,96]    // temp for x1 
+    stur x11,[sp,88]    // max(x6, x7)
+    stur x10,[sp,80]    // colour  
+    stur x9, [sp,72]    // square heigth 
+    stur x8, [sp,64]    // square base 
+    stur x7, [sp,56]    // y axis
+    stur x6, [sp,48]    // x axis
+    stur x5, [sp,40]    // y0
+    stur x4, [sp,32]    // x0
+    stur x3, [sp,24]    // a
+    stur x2, [sp,16]
+    stur x1, [sp,8]
+    stur lr, [sp]       // return pointer
+    //------------------
+
+    // calculate max(x6, x7)
+    cmp x6, x7
+    b.gt max_x6
+    mov x11, x7
+    b end_max
+    max_x6:
+    mov x11, x6
+    end_max:
+    
+    // calculate the coordinates of the most top left pixel in the square
+    subs x1, x4, x11 
+    b.lt set_x1_ellipse
+    b skip_x1_ellipse
+    set_x1_ellipse: 
+    add x1, xzr, xzr
+    skip_x1_ellipse:
+    subs x2, x5, x11   
+    b.lt set_x2_ellipse
+    b skip_x2_ellipse
+    set_x2_ellipse: 
+    add x2, xzr, xzr
+    skip_x2_ellipse:
+
+    // calculate sen(x3) and cos(x3) and store them in s13 and s14
+    bl taylor_sen //s13 -> sen(x3)
+    bl taylor_cos //s14 -> cos(x3)
+
+    add x9, x11, x11 // Height
+    mov x12, x1 // Temp for x1
+    loopPC1_ellipse:
+        cbz x9, endLoopPC1_ellipse
+        cmp x2, SCREEN_HEIGH
+        b.ge endLoopPC1_ellipse
+        mov x1, x12
+        add x8, x11, x11 // Base (same as height)
+        loopPC0_ellipse:
+            cbz x8, endLoopPC0_ellipse
+            cmp x1, SCREEN_WIDTH
+            b.ge endLoopPC0_ellipse
+            bl ifPixelInEllipsePaintIT
+            add x1, x1, 1
+            sub x8, x8, 1
+            b loopPC0_ellipse
+    endLoopPC0_ellipse:
+        add x2, x2, 1
+        sub x9, x9, 1
+        b loopPC1_ellipse
+    endLoopPC1_ellipse:
+
+    //------------------
+    ldur x14,[sp,112]  
+    ldur x13,[sp,104]  
+    ldur x12,[sp,96]   
+    ldur x11,[sp,88]    
+    ldur x10,[sp,80]    
+    ldur x9, [sp,72]     
+    ldur x8, [sp,64]    
+    ldur x7, [sp,56]    
+    ldur x6, [sp,48]    
+    ldur x5, [sp,40]    
+    ldur x4, [sp,32]    
+    ldur x3, [sp,24]    
+    ldur x2, [sp,16]
+    ldur x1, [sp,8]
+    ldur lr, [sp]       
+    add sp, sp, 120
+    br lr
+    //------------------
 
 .endif
