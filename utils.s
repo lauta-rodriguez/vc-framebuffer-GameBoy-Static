@@ -14,8 +14,8 @@ cleanFrameBuffer:
     stur lr, [sp,0]
     //------------------
 
-    movz x10, 0x3B, lsl 16
-    movk x10, 0x3E45, lsl 00
+    movz x10, 0xDE, lsl 16
+    movk x10, 0xB887, lsl 00
     mov x2, SCREEN_HEIGH
     
     loopCFB0:

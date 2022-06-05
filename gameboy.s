@@ -3,6 +3,34 @@
 
 .include "utils.s"
 
+drawTable:
+    //------------------
+    sub sp, sp, 16
+    stur x0, [sp,8]
+    stur lr, [sp,0]
+    //------------------
+
+    movz x10, 0xbb, lsl 16
+    movk x10, 0x8f6b, lsl 00
+    mov x2, SCREEN_HEIGH
+    
+    loopDT0:
+    mov x1, SCREEN_WIDTH
+    loopDT1:
+    stur w10, [x0]
+    add x0, x0, #4
+    sub x1, x1, #1
+    cbnz x1, loopDT1
+    sub x2,x2,#1							// substract row from counter
+    cbnz x2, loopDT0	
+
+    //------------------
+    ldur x0, [sp,8]
+    ldur lr, [sp,0]
+    add sp, sp, 16
+    ret
+    //------------------    
+
 drawBase: // done
     //------------------
     sub sp, sp, 104     // reserve memory in the stack 
@@ -242,7 +270,7 @@ drawCartridge: // done
     //------------------
 
 
-drawButtons: // incomplete
+drawButtons: // done
     //------------------
     sub sp, sp, 80      // reserve memory in the stack
     stur x7, [sp,72]    // temp
@@ -289,8 +317,8 @@ drawButtons: // incomplete
 
     // BUTTONS
     // color
-    movz x10, 0x32, lsl 16
-    movk x10, 0xCD32, lsl 0
+    movz x10, 0xac, lsl 16
+    movk x10, 0x3823, lsl 0
 
     // calculos para x1
     ldur x1, [sp,32]
@@ -316,8 +344,8 @@ drawButtons: // incomplete
      
     bl paintCircle
 
-    movz x10, 0x01, lsl 16
-    movk x10, 0x386a, lsl 0
+    movz x10, 0x00, lsl 16
+    movk x10, 0xdb96, lsl 0 
 
     mov x7, xzr
     add x7, x3, x3

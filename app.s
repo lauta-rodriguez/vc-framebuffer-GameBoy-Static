@@ -11,8 +11,9 @@ main:
 	// X0 contiene la direccion base del framebuffer
  	mov x20, x0	// Save framebuffer base address to x20	
 	//---------------- CODE HERE ------------------------------------
-	
+
 	bl cleanFrameBuffer
+	bl drawTable
 
 	// Todo se calcula en función de las coordenadas del top-left
 	// corner del borde de la pantalla (x1, x2) y las dimensiones
