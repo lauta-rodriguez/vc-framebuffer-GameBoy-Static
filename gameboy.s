@@ -22,8 +22,8 @@ drawBase: // done
     //------------------
 
     // Base color
-	  movz x10, 0xB8, lsl 16
-	  movk x10, 0xBAB9, lsl 0
+	movz x10, 0xF6, lsl 16
+	movk x10, 0xCF57, lsl 0
 
     // Initialize registers
     mov x5, xzr
@@ -207,8 +207,8 @@ drawCartridge: // done
     //------------------
 
 	// Cartdrige color
-	movz x10, 0x9D, lsl 16
-	movk x10, 0x373A, lsl 0
+	movz x10, 0x80, lsl 16
+	movk x10, 0xB425, lsl 0
 
     // Initializes registers
     mov x5, xzr
@@ -258,8 +258,6 @@ drawButtons: // incomplete
     //------------------
 
     // ARROWS
-    mov x7, xzr
-
     // calculates the arrows position
     lsr x5, x4, 1       // divides the display frame height by two
     add x5, x5, x4      // 3/2 de la altura del display frame
@@ -267,12 +265,12 @@ drawButtons: // incomplete
     add x2, x2, 30
 
     // calculate arrow's size
-    lsr x3, x3, 1       // divides fisplay frame width by two 
-    add x7, x7, 5
+    lsr x3, x3, 2       // divides fisplay frame width by two 
+    mov x7, 7
     udiv x4, x4, x7
 
-    movz x10, 0x39, lsl 16
-  	movk x10, 0x3139, lsl 0
+    movz x10, 0x01, lsl 16
+    movk x10, 0x386a, lsl 0
     bl paintRectangle   // pinta el rectángulo acostado
 
     // center the coordinates with respect to the rectangle just drawn
@@ -289,32 +287,43 @@ drawButtons: // incomplete
   
     bl paintRectangle   // cambiar por elipses
 
-    // RED BUTTONS
-    movz x10, 0xAB, lsl 16
-    movk x10, 0x3268, lsl 0
+    // BUTTONS
+    // color
+    movz x10, 0x32, lsl 16
+    movk x10, 0xCD32, lsl 0
 
-    // LARA: hace dinamicos x4 y x5, son el centro de los botones rojos
-    // el radio ya lo resolvi y esta en x3 mas abajo
-    // lsl x5, x5, 1
-    // add x2, x2, x5      // moves down to the bottom of the arrows
-    // add x2, x2, 30
-    // add x1, x1, 70      // moves 50 pixels right
+    // calculos para x1
+    ldur x1, [sp,32]
+    mov x6, x4
+    mov x7, 3
+    mul x6, x6, x7
+    mov x4, x1
+    add x4, x4, x6
+    
+    // calculos para el x2
+    mov x6, x5
+    mov x5, x2
+    add x5, x5, x6
+    add x5, x5, x6
+    add x5, x5, x6
+
 
     // calculates the radius of the red buttons based on the width of the display frame
-    mov x7, 7
+    mov x7, 12
     ldur x3, [sp,16]        // restores display frame width
     udiv x3, x3, x7 
-    // the radius is stored in x3 
+    // the radius is stored in x3
+     
+    bl paintCircle
 
-    // mov x4, x1
-    // add x4, x4, 10
-    // mov x5, x2
-    // sub x5, x5, 24
-    // bl paintCircle
+    movz x10, 0x01, lsl 16
+    movk x10, 0x386a, lsl 0
 
-    //add x4, x4, 32
-    //sub x5, x5, 32
-    // bl paintCircle
+    mov x7, xzr
+    add x7, x3, x3
+    add x4, x4, x7
+    sub x5, x5, x7
+    bl paintCircle
 
     //------------------
     ldur x7, [sp,72]    // temp
