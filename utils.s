@@ -14,8 +14,8 @@ cleanFrameBuffer:
     stur lr, [sp,0]
     //------------------
 
-    movz x10, 0xDE, lsl 16
-    movk x10, 0xB887, lsl 00
+    movz x10, 0x00, lsl 16
+    movk x10, 0x0000, lsl 00
     mov x2, SCREEN_HEIGH
     
     loopCFB0:
@@ -703,5 +703,246 @@ paintEllipse:
     add sp, sp, 120
     br lr
     //------------------
+
+drawFurniture:
+    //------------------
+    sub sp, sp, 56      // reserve memory in the stack 
+    stur x1, [sp,48]    // floor's initial x coordinate
+    stur x2, [sp,40]    // floor's initial y coordinate
+    stur x3, [sp,32]    // furniture width
+    stur x4, [sp,24]     // furniture height
+    stur x11,[sp,16]      // aux register  
+    stur x12,[sp,8]      // aux register
+    stur lr, [sp,0]
+    //------------------
+
+  // FURNITURE
+	// accents
+	mov x1, 20
+	sub x2, x2, 60
+	mov x3, 200				// width of the furniture
+	mov x4, 80				// height of the furniture
+
+	mov x11, x1				// saves x coordinate
+	mov x12, x2				// saves y coordinate
+
+	movz x10, 0x84, lsl 16	// dark brown
+    movk x10, 0x4838, lsl 00		
+	bl paintRectangle
+
+    // doors
+	add x1, x1, 5			// dark margin is 5 pixels wide
+	add x2, x2, 5			// dark margin is 5 pixels tall
+   	mov x3, 90				// first door
+	sub x4, x4, 10
+
+	movz x10, 0x93, lsl 16	// lighter brown
+    movk x10, 0x513F, lsl 00		
+	bl paintRectangle
+
+	add x1, x1, 100
+	bl paintRectangle		// second door
+ 
+  // TV
+    // restores x and y coordinates
+	mov x1, x11			
+	mov x2, x12			
+
+	add x1, x1, 20
+ 	sub x2, x2, 70
+
+	mov x3, 160				// width of the tv
+	mov x4, 60				// height of the tv
+
+	movz x10, 0x00, lsl 16	// black
+    movk x10, 0x0000, lsl 00
+	bl paintRectangle 
+
+	add x1, x1, 80
+	mov x5, 12
+	add x2, x2, 58
+
+	bl paintTriangle
+
+    //------------------
+    ldur x1, [sp,48]    // floor's initial x coordinate
+    ldur x2, [sp,40]    // floor's initial y coordinate
+    ldur x3, [sp,32]    // furniture width
+    ldur x4, [sp,24]     // furniture height
+    ldur x11,[sp,16]      // aux register  
+    ldur x12,[sp,8]      // aux register
+    ldur lr, [sp,0]
+    add sp, sp, 104     // free memory in the stack
+    br lr
+    //------------------
+
+
+
+drawWindow:
+    //------------------
+    sub sp, sp, 56      // reserve memory in the stack 
+    stur x3, [sp,48]    // floor's initial x coordinate
+    stur x4, [sp,40]    // floor's initial y coordinate
+    stur x5, [sp,32]    // furniture width
+    stur x7, [sp,24]     // furniture height
+    stur x11,[sp,16]      // aux register  
+    stur x12,[sp,8]      // aux register
+    stur lr, [sp,0]
+    //------------------
+
+  // DUSK	
+	mov x4, 520
+	mov x5, 210
+    mov x1, x4
+    mov x2, x5 
+	
+	mov x3, 160             // radio del circulo    
+	movz x9, 0x09, lsl 16
+    movk x9, 0x0900, lsl 00 // incremento para x10
+	movz x10, 0x33, lsl 16
+    movk x10, 0x0fee, lsl 00// base blue color
+
+	mov x7, 7               // decremento del radio en cada iteración
+    mov x8, 2               // cantidad de iteraciones
+    blue_block: 
+        cbz x8, end_blue
+
+        bl paintCircle
+
+        add x10, x10, x9
+        
+        sub x3, x3, x7
+        sub x8, x8, 1
+        b blue_block
+
+    end_blue:
+
+    movz x9, 0x0f, lsl 16
+    movk x9, 0x0400, lsl 00 // incremento para x10
+    movz x11, 0x00, lsl 16
+    movk x11, 0x0015, lsl 00// decremento para x10
+
+    mov x8, 6               // cantidad de iteraciones
+    purple_block: 
+        cbz x8, end_purple
+
+        bl paintCircle
+
+        add x10, x10, x9
+        sub x10, x10, x11
+
+        sub x3, x3, x7
+        sub x8, x8, 1
+        b purple_block
+
+    end_purple:
+
+    mov x8, 6
+    movz x9, 0x0f, lsl 16   // incremento para x10
+    movk x9, 0x0600, lsl 00
+    movz x11, 0x00, lsl 16  // decremento para x10
+    movk x11, 0x0015, lsl 00
+
+    mov x8, 6               // cantidad de iteraciones
+    orange_block: 
+        cbz x8, end_orange
+
+        bl paintCircle
+
+        add x10, x10, x9
+        sub x10, x10, x11
+
+        sub x3, x3, x7
+        sub x8, x8, 1
+        b orange_block
+
+    end_orange:
+
+    movz x9, 0x00, lsl 16   
+    movk x9, 0x0f00, lsl 00 // incremento para x10
+	movz x10, 0xff, lsl 16  
+    movk x10, 0x7a0f, lsl 00// sets new color
+  
+    mov x8, 6               // cantidad de iteraciones
+    yellow_block: 
+        cbz x8, end_yellow
+
+        bl paintCircle
+
+        add x10, x10, x9
+
+        sub x3, x3, x7
+        sub x8, x8, 1
+        b yellow_block
+
+    end_yellow:
+
+  // WINDOW FRAME - a partir de las coordenadas del centro del círculo
+    movz x10, 0x00, lsl 16
+    movk x10, 0x0000, lsl 00    // border color
+
+    mov x3, 210         // sets frame width
+    lsr x8, x3, 1
+    sub x1, x1, x8      // moves half the window's width left
+    mov x4, 5           // window frame is 5 pixels tall 
+    bl paintRectangle   // bottom frame
+
+    mov x3, 5           // frame is 5 pixels wide
+    mov x4, 110         // frame is x4 pixels tall
+    sub x8, x4, 5
+    sub x2, x2, x8
+	bl paintRectangle   // left frame
+
+    mov x3, 210
+    mov x4, 5
+    bl paintRectangle   // top frame
+
+    sub x8, x3, 5
+    add x1, x1, x8
+    mov x3, 5
+    mov x4, 110
+    bl paintRectangle
+     
+  // WALL
+    movz x10, 0xD0, lsl 16
+    movk x10, 0xDDE4, lsl 00// grey
+
+    // la coordenada y del tope del borde es la altura del rectángulo a pintar
+    mov x4, x2          
+    mov x1, 0
+    mov x2, 0
+    mov x3, SCREEN_WIDTH
+    bl paintRectangle
+
+    mov x2, x4          // x4 es la distancia entre el tope del framebuffer y el tope del window frame
+    mov x4, 110         // seteo una nueva altura para el rectángulo a pintar
+    sub x3, x3, x5      // x5 contains the x coordinate of the center of the circle (resta la ventana)
+    sub x3, x3, 15      // resta lo que queda de pared
+    bl paintRectangle
+
+    mov x1, x3          // se mueve al comienzo de la ventana
+    add x1, x1, 210     // se mueve a la derecha de la ventana
+    mov x3, 15          // ancho de lo que queda de pared
+    bl paintRectangle
+
+    sub x1, x1, 300     // se mueve a la izquierda de la ventana
+    add x2, x2, 110     // se mueve abajo de la ventana
+    mov x3, 350
+    mov x4, 300
+    bl paintRectangle
+
+    //------------------
+    ldur x1, [sp,48]    // floor's initial x coordinate
+    ldur x2, [sp,40]    // floor's initial y coordinate
+    ldur x3, [sp,32]    // furniture width
+    ldur x4, [sp,24]     // furniture height
+    ldur x11,[sp,16]      // aux register  
+    ldur x12,[sp,8]      // aux register
+    ldur lr, [sp,0]
+    add sp, sp, 104     // free memory in the stack
+    br lr
+    //------------------
+
+
 
 .endif

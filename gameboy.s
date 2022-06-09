@@ -10,8 +10,8 @@ drawTable:
     stur lr, [sp,0]
     //------------------
 
-    movz x10, 0xbb, lsl 16
-    movk x10, 0x8f6b, lsl 00
+    movz x10, 0xD0, lsl 16
+    movk x10, 0xDDE4, lsl 00
     mov x2, SCREEN_HEIGH
     
     loopDT0:

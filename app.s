@@ -15,6 +15,28 @@ main:
 	bl cleanFrameBuffer
 	bl drawTable
 
+	//-----------------------BACKGROUND-----------------------------
+
+	bl drawWindow
+
+  // FLOOR
+	movz x10, 0x55, lsl 16	// grey (floor)
+    movk x10, 0x5864, lsl 00	
+
+	mov x1, 0
+	mov x2, 3
+    mov x3, SCREEN_WIDTH 	// framebuffer width
+    mov x4, SCREEN_HEIGH 	// framebuffer height
+
+	udiv x4, x4, x2			// divides the framebuffer height by 3
+	add x2, x2, x4
+	add x2, x2, x4  		// moves down 2/3 of the framebuffer height
+	bl paintRectangle
+
+  // Mueble
+	bl drawFurniture
+
+	//----------------------GAMEBOY----------------------------
 	// Todo se calcula en función de las coordenadas del top-left
 	// corner del borde de la pantalla (x1, x2) y las dimensiones
 	// del borde (x3, x4) que es el cuadrado que incluye al display
@@ -28,16 +50,16 @@ main:
     //Inicializo los registros
     mov x1, xzr		// gameboy display x coordinate
     mov x2, xzr		// gameboy display y coordinate
- 	mov x3, xzr		// 
-    mov x4, xzr		// 
-	mov x13, xzr	// temp
-	mov x14, xzr	// temp
+// 	mov x3, xzr		// 
+//  mov x4, xzr		// 
+//	mov x13, xzr	// temp
+//  mov x14, xzr	// temp
 
 	// Parámetros del frame del display del gameboy ("del" combo x3) 
-	add x3, x3, 140		// width
-	add x4, x4, 100		// height
-    add x13, x13, SCREEN_WIDTH // framebuffer width
-    add x14, x14, SCREEN_HEIGH // framebuffer height 
+	mov x3, 140		// width
+	mov x4, 100		// height
+    mov x13, SCREEN_WIDTH // framebuffer width
+    mov x14, SCREEN_HEIGH // framebuffer height 
 
     // center border horizontally in the framebuffer
     sub x13, x13, x3      // substracts base width from framebuffer width 
