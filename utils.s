@@ -925,9 +925,9 @@ drawWindow:
     mov x3, 15          // ancho de lo que queda de pared
     bl paintRectangle
 
-    sub x1, x1, 300     // se mueve a la izquierda de la ventana
+    mov x1, 0           // se mueve al comienzo del framebuffer
     add x2, x2, 110     // se mueve abajo de la ventana
-    mov x3, 350
+    mov x3, SCREEN_WIDTH
     mov x4, 300
     bl paintRectangle
 

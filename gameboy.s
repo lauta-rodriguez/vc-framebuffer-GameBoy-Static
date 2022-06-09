@@ -237,18 +237,13 @@ drawCartridge: // done
 	// Cartdrige color
 	movz x10, 0x80, lsl 16
 	movk x10, 0xB425, lsl 0
-
-    // Initializes registers
-    mov x5, xzr
-    mov x8, xzr
-    mov x9, xzr
     
     // calculates cartdrige height
-    add x5, x5, 2
+    mov x5, 2
     udiv x5, x4, x5
     sub x2, x2, x5      // moves x5 pixels up
 
-    add x8, x8, 5      // determines how pronounced is the corner's curve
+    mov x8, 5      // determines how pronounced is the corner's curve
     bl paintRoundedRectangle
 
     //------------------
