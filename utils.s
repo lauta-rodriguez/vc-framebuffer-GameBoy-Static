@@ -779,22 +779,30 @@ drawFurniture:
 
 
 drawWindow:
+    //
+    //  DESCRIPCIÓN DE LA FUNCIÓN   
+    //
+
     //------------------
-    sub sp, sp, 56      // reserve memory in the stack 
-    stur x3, [sp,48]    // floor's initial x coordinate
-    stur x4, [sp,40]    // floor's initial y coordinate
-    stur x5, [sp,32]    // furniture width
-    stur x7, [sp,24]     // furniture height
-    stur x11,[sp,16]      // aux register  
-    stur x12,[sp,8]      // aux register
+    sub sp, sp, 104      // reserve memory in the stack 
+    stur x1, [sp,96]
+    stur x2, [sp,88]
+    stur x3, [sp,80]    
+    stur x4, [sp,72]    
+    stur x5, [sp,64]    
+    stur x6, [sp,56]
+    stur x7, [sp,48]    
+    stur x8, [sp,40]
+    stur x9, [sp,32]
+    stur x10,[sp,24]
+    stur x11,[sp,16]       
+    stur x12,[sp,8]      
     stur lr, [sp,0]
     //------------------
 
   // DUSK	
 	mov x4, 520
 	mov x5, 210
-    mov x1, x4
-    mov x2, x5 
 	
 	mov x3, 160             // radio del circulo    
 	movz x9, 0x09, lsl 16
@@ -878,37 +886,52 @@ drawWindow:
     end_yellow:
 
   // WINDOW FRAME - a partir de las coordenadas del centro del círculo
-    movz x10, 0x00, lsl 16
-    movk x10, 0x0000, lsl 00    // border color
+    mov x1, x4  //coordenadas del centro
+    mov x2, x5 
+
+    // frame dimentions: 210(width) by 110(height)
+	movz x10, 0x61, lsl 16	// dark brown
+    movk x10, 0x2112, lsl 00
 
     mov x3, 210         // sets frame width
     lsr x8, x3, 1
     sub x1, x1, x8      // moves half the window's width left
-    mov x4, 5           // window frame is 5 pixels tall 
-    bl paintRectangle   // bottom frame
+    mov x4, 8           // window frame is 5 pixels tall 
+    bl paintRectangle   // BOTTOM FRAME
 
-    mov x3, 5           // frame is 5 pixels wide
+    mov x3, 8           // frame is 5 pixels wide
     mov x4, 110         // frame is x4 pixels tall
-    sub x8, x4, 5
-    sub x2, x2, x8
-	bl paintRectangle   // left frame
+    sub x8, x4, 8       // + frame width
+    sub x2, x2, x8  
+	bl paintRectangle   // LEFT FRAME
 
+    // saves (x1, x2) in (x11, x12) -> para dibujar las hojas de la ventana
+    mov x11, x1          // x coordinate of the top frame
+    mov x12, x2          // y coordinate of the top frame
+    
     mov x3, 210
-    mov x4, 5
-    bl paintRectangle   // top frame
+    mov x4, 8
+    bl paintRectangle   // TOP FRAME
 
-    sub x8, x3, 5
+    // antes de ir al right frame, parar al meido y dibujar la línea 
+    // que divide la ventana a la mitad
+
+    sub x8, x3, 8       // window width minus frame width
+    lsr x8, x8, 1       
     add x1, x1, x8
-    mov x3, 5
+    mov x3, 8
     mov x4, 110
-    bl paintRectangle
+    bl paintRectangle   // MIDDLE FRAME
+          
+    add x1, x1, x8
+    bl paintRectangle   // RIGHT FRAME
      
   // WALL
-    movz x10, 0xD0, lsl 16
-    movk x10, 0xDDE4, lsl 00// grey
+    movz x10, 0xC2, lsl 16
+    movk x10, 0x8340, lsl 00// brown
 
     // la coordenada y del tope del borde es la altura del rectángulo a pintar
-    mov x4, x2          
+    mov x4, x2          // altura del top frame
     mov x1, 0
     mov x2, 0
     mov x3, SCREEN_WIDTH
@@ -931,18 +954,129 @@ drawWindow:
     mov x4, 300
     bl paintRectangle
 
+  // Hojas de las ventanas
+	movz x10, 0x61, lsl 16	// dark brown
+    movk x10, 0x2112, lsl 00
+
+    mov x1, x11     // x11 - x1 es la distancia entre el frame y la hoja
+    mov x2, x12
+
+    mov x3, 1
+    mov x4, 9
+    mov x7, xzr
+    diagonalRightUp:
+        cmp x7, 35   
+        b.eq end_diagonalRightUp
+
+        bl paintRectangle
+        add x1, x1, 1   // al final del loop queda x1 + 35
+        sub x2, x2, 1   // al final del loop queda x2 + 35
+
+        add x7, x7, 1
+        b diagonalRightUp
+    end_diagonalRightUp:
+
+    mov x3, 8           // ancho del frame
+    mov x4, 110         // altura del frame
+
+    add x4, x4, 35      // suma la distancia hasta el tope de la línea diagonal
+    add x4, x4, 35      // dos veces
+    bl paintRectangle
+
+    sub x1, x1, 35
+    add x2, x2, 35
+    add x2, x2, 51      // (110/2)-(8/2) -> barra horizontal del medio
+
+    mov x3, 35
+    mov x4, 8
+    bl paintRectangle
+
+    mov x3, 1
+    mov x4, 9
+    add x2, x2, 51      // (110/2)-(8/2) -> le resta el borde de abajo
+    mov x7, xzr
+    diagonalRightDown:
+        cmp x7, 35   
+        b.eq end_diagonalRightDown
+
+        bl paintRectangle
+        add x1, x1, 1   // al final del loop queda x1 + 35
+        add x2, x2, 1   // al final del loop queda x2 + 35
+
+        add x7, x7, 1
+        b diagonalRightDown
+    end_diagonalRightDown:
+
+    // moves to the left rigth frame (moves window width rightwards)
+
+    sub x1, x1, 35
+    sub x2, x2, 35
+    add x1, x1, 209
+
+    mov x3, 1
+    mov x4, 9
+    mov x7, xzr
+    diagonalLeftDown:
+        cmp x7, 35   
+        b.eq end_diagonalLeftDown
+
+        bl paintRectangle
+        sub x1, x1, 1   // al final del loop queda x1 - 35
+        add x2, x2, 1   // al final del loop queda x2 + 35
+
+        add x7, x7, 1
+        b diagonalLeftDown
+    end_diagonalLeftDown:
+
+    sub x2, x2, 35
+    sub x2, x2, 51
+
+    mov x3, 35
+    mov x4, 8
+    bl paintRectangle
+
+    add x1, x1, 35
+    sub x2, x2, 51
+
+    mov x3, 1
+    mov x4, 9
+    mov x7, xzr
+    diagonalLeftUp:
+        cmp x7, 35   
+        b.eq end_diagonalLeftUp
+
+        bl paintRectangle
+        sub x1, x1, 1   // al final del loop queda x1 - 35
+        sub x2, x2, 1   // al final del loop queda x2 + 35
+
+        add x7, x7, 1
+        b diagonalLeftUp
+    end_diagonalLeftUp:
+
+    sub x1, x1, 7
+    mov x3, 8
+    mov x4,110
+    add x4, x4, 35
+    add x4, x4, 35
+
+    bl paintRectangle
+
     //------------------
-    ldur x1, [sp,48]    // floor's initial x coordinate
-    ldur x2, [sp,40]    // floor's initial y coordinate
-    ldur x3, [sp,32]    // furniture width
-    ldur x4, [sp,24]     // furniture height
-    ldur x11,[sp,16]      // aux register  
-    ldur x12,[sp,8]      // aux register
+    ldur x1, [sp,96]
+    ldur x2, [sp,88]
+    ldur x3, [sp,80]    
+    ldur x4, [sp,72]   
+    ldur x5, [sp,64]    
+    ldur x6, [sp,56]
+    ldur x7, [sp,48]     
+    ldur x8, [sp,40]
+    ldur x9, [sp,32]
+    ldur x10,[sp,24]
+    ldur x11,[sp,16]        
+    ldur x12,[sp,8]      
     ldur lr, [sp,0]
     add sp, sp, 104     // free memory in the stack
     br lr
     //------------------
-
-
 
 .endif
