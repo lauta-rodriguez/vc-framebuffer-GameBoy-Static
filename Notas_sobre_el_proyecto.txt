@@ -1,0 +1,3 @@
+Grupo: Nieto, Manuel - Kurtz, Lara - Rodriguez, Lautaro 
+
+El codigo de la imagen estatica genera un GameBoy Color (1998).
