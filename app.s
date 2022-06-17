@@ -3,7 +3,7 @@
 // Kurtz, Lara
 // Rodriguez, Lautaro
 
-.include "gameboy.s"
+.include "utils.s"
 
 .globl main
 main:
@@ -13,14 +13,14 @@ main:
 	//---------------- CODE HERE ------------------------------------
 
 	bl cleanFrameBuffer
-
 	//-----------------------BACKGROUND-----------------------------
 
 	bl drawWindow
 
-  // FLOOR
+  	// Floor
 	movz x10, 0x55, lsl 16	// grey (floor)
     movk x10, 0x5864, lsl 00	
+	
 
 	mov x1, 0
 	mov x2, 3
@@ -32,7 +32,7 @@ main:
 	add x2, x2, x4  		// moves down 2/3 of the framebuffer height
 	bl paintRectangle
 
-  // Mueble
+  	// Furniture
 	bl drawFurniture
 
 	//----------------------GAMEBOY----------------------------
@@ -49,10 +49,6 @@ main:
     //Inicializo los registros
     mov x1, xzr		// gameboy display x coordinate
     mov x2, xzr		// gameboy display y coordinate
-// 	mov x3, xzr		// 
-//  mov x4, xzr		// 
-//	mov x13, xzr	// temp
-//  mov x14, xzr	// temp
 
 	// Parámetros del frame del display del gameboy ("del" combo x3) 
 	mov x3, 140		// width
